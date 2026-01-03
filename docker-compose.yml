@@ -1,0 +1,50 @@
+services:
+    cobalt:
+        image: ghcr.io/imputnet/cobalt:latest
+
+        init: true
+        read_only: true
+        restart: unless-stopped
+        container_name: cobalt-api
+
+        ports:
+          - "${API_PORT}:${API_PORT}"
+
+        environment:
+          API_URL: "${API_URL}"
+
+            # if you want to use cookies for fetching data from services,
+            # uncomment the next line & volumes section
+            # COOKIE_PATH: "/cookies.json"
+
+            # it's recommended to configure bot protection or api keys if the instance is public,
+            # see /docs/protect-an-instance.md for more info
+
+            # see /docs/run-an-instance.md for more variables that you can use here
+
+
+        # uncomment only if you use the COOKIE_PATH variable
+        # volumes:
+            # - ./cookies.json:/cookies.json
+
+
+    # if needed, use this image for automatically generating poToken & visitor_data
+    # yt-session-generator:
+    #     image: ghcr.io/imputnet/yt-session-generator:webserver
+
+    #     init: true
+    #     restart: unless-stopped
+    #     container_name: yt-session-generator
+    #     labels:
+    #       - com.centurylinklabs.watchtower.scope=cobalt
+
+    cobalt-web:
+      container_name: cobalt-web
+      build:
+        context: .
+        args:
+          WEB_DEFAULT_API: "${WEB_DEFAULT_API}"
+          WEB_HOST: "${WEB_HOST}"
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080"
